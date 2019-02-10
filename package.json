@@ -3,22 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "react": "^16.1.1",
-    "react-dom": "^16.1.1",
-    "react-scripts-ts": "2.8.0",
-    "three": "^0.88.0"
+    "react": "^16.8.1",
+    "react-dom": "^16.8.1",
+    "react-scripts": "^2.1.4",
+    "three": "^0.101.1"
   },
   "scripts": {
-    "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
-    "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "@types/jest": "^21.1.7",
-    "@types/node": "^8.0.53",
-    "@types/react": "^16.0.25",
-    "@types/react-dom": "^16.0.3",
-    "@types/three": "^0.84.32"
-  }
+    "@types/jest": "^24.0.0",
+    "@types/node": "^10.12.24",
+    "@types/react": "^16.8.2",
+    "@types/react-dom": "^16.8.0",
+    "@types/three": "^0.93.19",
+    "typescript": "^3.3.3"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

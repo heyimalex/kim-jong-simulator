@@ -28,7 +28,7 @@ export default class CanvasGridDrawer extends React.Component<
     CanvasGridDrawerProps,
     CanvasGridDrawerState
 > {
-    canvas: HTMLCanvasElement | null;
+    canvas: HTMLCanvasElement | null = null;
 
     constructor(props: CanvasGridDrawerProps) {
         super(props);
@@ -51,10 +51,10 @@ export default class CanvasGridDrawer extends React.Component<
         let cellWidth, cellHeight;
         if (width / columnsScaled > height / rowsScaled) {
             cellHeight = Math.floor(height / rows);
-            cellWidth = Math.floor(cellHeight * columnSpacing / rowSpacing);
+            cellWidth = Math.floor((cellHeight * columnSpacing) / rowSpacing);
         } else {
             cellWidth = Math.floor(width / columns);
-            cellHeight = Math.floor(cellWidth * rowSpacing / columnSpacing);
+            cellHeight = Math.floor((cellWidth * rowSpacing) / columnSpacing);
         }
         const xOffset = Math.floor((width - columns * cellWidth) / 2);
         const yOffset = Math.floor((height - rows * cellHeight) / 2);

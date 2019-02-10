@@ -131,13 +131,19 @@ export default class App extends React.Component<any, AppState> {
       if (state.mode === "clear") {
         const nextGrid = state.grid.present.clone();
         nextGrid.fill(state.color);
-        return { grid: this.pushNextGrid(state, nextGrid) };
+        return {
+          grid: this.pushNextGrid(state, nextGrid),
+          drawing: state.drawing
+        };
       }
 
       if (state.mode === "fill") {
         const nextGrid = state.grid.present.clone();
         nextGrid.floodFill(x, y, state.color);
-        return { grid: this.pushNextGrid(state, nextGrid) };
+        return {
+          grid: this.pushNextGrid(state, nextGrid),
+          drawing: state.drawing
+        };
       }
 
       // Clone the current grid to create the mutable pending grid. All of the
@@ -153,6 +159,7 @@ export default class App extends React.Component<any, AppState> {
       switch (state.mode) {
         case "line":
           return {
+            grid: state.grid,
             drawing: {
               kind: "line",
               pending,
@@ -162,6 +169,7 @@ export default class App extends React.Component<any, AppState> {
           };
         case "rect":
           return {
+            grid: state.grid,
             drawing: {
               kind: "rect",
               pending,
@@ -171,6 +179,7 @@ export default class App extends React.Component<any, AppState> {
           };
         case "paint":
           return {
+            grid: state.grid,
             drawing: {
               kind: "paint",
               pending,
@@ -180,6 +189,7 @@ export default class App extends React.Component<any, AppState> {
         default:
           return null;
       }
+      return null;
     });
   };
 
@@ -254,7 +264,7 @@ export default class App extends React.Component<any, AppState> {
       return {
         grid: {
           past: nextPast,
-          present: nextPresent,
+          present: nextPresent as Grid,
           future: [history.present, ...history.future]
         }
       };
@@ -271,7 +281,7 @@ export default class App extends React.Component<any, AppState> {
       return {
         grid: {
           past: history.past.concat([history.present]),
-          present: nextPresent,
+          present: nextPresent as Grid,
           future: nextFuture
         }
       };
