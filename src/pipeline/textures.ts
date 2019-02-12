@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import Color from "./Color";
+import { Color } from "./Color";
 
 const textureLoader = new THREE.TextureLoader();
 

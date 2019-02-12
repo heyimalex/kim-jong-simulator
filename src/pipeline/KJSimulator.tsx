@@ -2,13 +2,14 @@ import * as THREE from "three";
 import * as React from "react";
 
 import { loadTextures, KJSTextures } from "./textures";
-import Grid from "./Grid";
-import Color from "./Color";
+import { Grid } from "./Grid";
+import { Color } from "./Color";
+import { PRNG } from "./utils";
 
 // CONFIG ----------------------------
 
-const sceneWidth = 1080;
-const sceneHeight = 1080;
+const sceneWidth = 1800;
+const sceneHeight = 1800;
 const cameraPosition: Coordinate = { x: 0, y: 18.4, z: 100 };
 const lookAtPosition: Coordinate = { x: 0, y: 0, z: -40 };
 
@@ -38,52 +39,23 @@ interface Coordinate {
   z: number;
 }
 
-interface KJSimProps {
-  grid: Grid;
-  textures: KJSTextures;
-}
+export const GRID_WIDTH = 180;
+export const GRID_HEIGHT = 220;
 
-export default class KJSimTextureLoader extends React.Component<any, any> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      textures: null
-    };
-  }
-  componentDidMount() {
-    loadTextures().then(textures => {
-      this.setState({ textures });
-    });
-  }
-  render() {
-    if (this.state.textures === null) {
-      return "loading textures...";
-    }
-    return <KJSim grid={this.props.grid} textures={this.state.textures} />;
-  }
-}
-
-interface SoldierSprite {
-  sprite: THREE.Sprite;
-  x: number;
-  y: number;
-}
-
-class KJSim extends React.PureComponent<KJSimProps> {
-  soldiers: Array<SoldierSprite> = [];
-  scene: THREE.Scene;
-  lastGrid: Grid;
+export class KJS {
+  private grid: Grid;
+  renderer: THREE.WebGLRenderer;
+  private scene: THREE.Scene;
+  private soldiers: Array<THREE.Sprite | undefined>;
   renderScene: () => void;
+  private textures: KJSTextures;
 
-  constructor(props: KJSimProps) {
-    super(props);
-
+  constructor(textures: KJSTextures) {
     const renderer = new THREE.WebGLRenderer({
       alpha: true
     });
     renderer.setSize(sceneWidth, sceneHeight);
     renderer.setClearColor(0xdddddd, 1);
-    document.getElementById("threeroot")!.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
 
@@ -98,10 +70,10 @@ class KJSim extends React.PureComponent<KJSimProps> {
       new THREE.Vector3(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z)
     );
 
-    scene.background = props.textures.background;
-    //scene.fog = new THREE.FogExp2(0xffffff, 0.001);
+    scene.background = textures.background;
 
-    // Following stuff is scene setup just to render the overlay.
+    // Following stuff is scene setup just to render the overlay. There has to
+    // be an easier faster way to do this.
     const width = sceneWidth;
     const height = sceneHeight;
     const overlayCamera = new THREE.OrthographicCamera(
@@ -116,7 +88,7 @@ class KJSim extends React.PureComponent<KJSimProps> {
     const overlayMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(width, height),
       new THREE.MeshBasicMaterial({
-        map: props.textures.overlay,
+        map: textures.overlay,
         color: 0xffffff,
         transparent: true
       })
@@ -124,32 +96,22 @@ class KJSim extends React.PureComponent<KJSimProps> {
     overlayScene.add(overlayMesh);
     renderer.autoClear = false;
 
-    this.lastGrid = props.grid.clone();
+    this.textures = textures;
+    this.grid = new Grid(GRID_WIDTH, GRID_HEIGHT);
+    this.renderer = renderer;
     this.scene = scene;
     this.renderScene = () => {
       renderer.render(scene, camera);
       renderer.clearDepth();
       renderer.render(overlayScene, overlayCamera);
+      renderer.clearDepth();
     };
-  }
 
-  componentDidMount() {
-    this.initialRender();
-  }
+    // Setup the scene.
+    const { grid } = this;
+    const { materialMap, guardMaterial, flagMaterial } = textures;
 
-  componentDidUpdate() {
-    // lmao this is lazy
-    requestAnimationFrame(() => {
-      this.updateRender();
-    });
-  }
-
-  initialRender() {
-    const { grid } = this.props;
-    const { materialMap, guardMaterial, flagMaterial } = this.props.textures;
-    const { scene } = this;
-
-    this.soldiers = [];
+    this.soldiers = new Array(grid.data.length).fill(undefined);
 
     const rng = new PRNG(1);
 
@@ -160,11 +122,11 @@ class KJSim extends React.PureComponent<KJSimProps> {
     }
 
     function getFrontColor(x: number, y: number): Color | undefined {
-      return grid.read(x, y + rearRows);
+      return grid.readPixel(x, y + rearRows);
     }
 
     function getRearColor(x: number, y: number): Color | undefined {
-      return grid.read(x + rearColumnOffset, y);
+      return grid.readPixel(x + rearColumnOffset, y);
     }
 
     // Rear soldiers
@@ -186,11 +148,9 @@ class KJSim extends React.PureComponent<KJSimProps> {
           rearOffsetY + row * rowSpacing
         );
         scene.add(sprite);
-        this.soldiers.push({
-          sprite,
-          x: column + rearColumnOffset,
-          y: row
-        });
+
+        const x = column + rearColumnOffset;
+        this.soldiers[row * GRID_WIDTH + column + rearColumnOffset] = sprite;
       }
     }
 
@@ -210,13 +170,12 @@ class KJSim extends React.PureComponent<KJSimProps> {
           frontOffsetY + row * rowSpacing
         );
         scene.add(sprite);
-        this.soldiers.push({
-          sprite,
-          x: column,
-          y: row + rearRows
-        });
+        this.soldiers[(row + rearRows) * GRID_WIDTH + column] = sprite;
       }
     }
+
+    // TODO: All of the following things can be added to the underlying image
+    // and this code can be removed.
 
     const guardScale = 1;
     const guardDistance = 1.5;
@@ -266,7 +225,7 @@ class KJSim extends React.PureComponent<KJSimProps> {
       });
     }
 
-    // Render flags.
+    // Render flag people in the back.
     const flagScale = 4;
     const flagOffsetY = rearOffsetY - 3;
     for (let x = -6; x < rearColumns + 6; x += 6) {
@@ -275,42 +234,30 @@ class KJSim extends React.PureComponent<KJSimProps> {
       sprite.position.set(rearOffsetX + x * columnSpacing, 0, flagOffsetY);
       scene.add(sprite);
     }
-    this.renderScene();
   }
 
-  updateRender() {
-    const { grid } = this.props;
-    const { materialMap } = this.props.textures;
-    const { soldiers, lastGrid } = this;
-
-    for (let soldier of soldiers) {
-      const { x, y } = soldier;
-      const prevColor = lastGrid.read(x, y)!;
-      const nextColor = grid.read(x, y)!;
-      if (prevColor !== nextColor) {
-        lastGrid.paint(x, y, nextColor);
-        soldier.sprite.material = materialMap.get(nextColor)!;
+  updateScene(nextGrid: Grid) {
+    const { grid, soldiers } = this;
+    const { materialMap } = this.textures;
+    if (process.env.NODE_ENV === "development") {
+      if (nextGrid.width !== grid.width || nextGrid.height !== grid.height) {
+        throw new Error(
+          "could not update scene: grids have different dimensions."
+        );
       }
     }
-    this.renderScene();
-  }
 
-  render() {
-    return null;
-  }
-}
-
-// Pseudo-random number generator, ripped from a gist somewhere.
-class PRNG {
-  seed: number;
-  constructor(seed: number) {
-    this.seed = seed % 2147483647;
-    if (this.seed <= 0) this.seed += 2147483646;
-  }
-
-  nextFloat(): number {
-    const next = (this.seed * 16807) % 2147483647;
-    this.seed = next;
-    return (next - 1) / 2147483646;
+    // Walk the two grids, comparing values. If either value has changed,
+    // update the corresponding sprite material. Could avoid a lot of
+    // iterations here if we didn't go over the missing rear soldiers.
+    for (let i = 0; i < grid.data.length; i++) {
+      if (grid.data[i] === nextGrid.data[i]) continue;
+      const nextColor = nextGrid.data[i];
+      grid.data[i] = nextColor;
+      const sprite = soldiers[i];
+      if (sprite !== undefined) {
+        sprite.material = materialMap.get(nextColor || Color.Red)!;
+      }
+    }
   }
 }
