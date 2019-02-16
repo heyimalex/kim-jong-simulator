@@ -12,8 +12,8 @@ function loadTexture(url: string): Promise<THREE.Texture> {
 }
 
 const textureNames = [
-  "background",
-  "overlay",
+  "background2",
+  "overlay2",
   "flag",
   "guard",
   "soldier-red",
