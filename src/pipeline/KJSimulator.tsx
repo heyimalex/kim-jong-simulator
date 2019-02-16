@@ -22,7 +22,7 @@ const columnSpacing = 0.3;
 
 const rearColumnOffset = Math.floor((frontColumns - rearColumns) / 2);
 
-const frontOffsetX = (frontColumns / 2) * columnSpacing * -1;
+const frontOffsetX = (frontColumns / 2) * columnSpacing * -1 + 0.2;
 const frontOffsetY = (frontRows / 2) * rowSpacing * -1 - 2;
 
 const rearOffsetX = frontOffsetX + rearColumnOffset * columnSpacing;
