@@ -1,5 +1,22 @@
-# kim jong simulator
+# TODO
 
-I wrote a thing to make a picture. Play with it
-[here](http://kimjongsim.s3-website-us-west-1.amazonaws.com). Will write more
-later.
+- Advanced text rendering options
+  - font
+  - bold/italic
+  - line height
+  - text align
+  - vertical align
+  - adaptive font size
+  - max font size
+  - force uppercase
+  - force trim space
+  - quantization point
+- Faster time to first paint
+  - Render static
+  - Load pipeline code async
+- Mobile-friendly styling
+- Compress textures
+- Post render filters
+- Improve rendering performance
+- Save image as
+- From image
