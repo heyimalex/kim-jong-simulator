@@ -109,7 +109,7 @@ export class KJS {
 
     // Setup the scene.
     const { grid } = this;
-    const { materialMap, guardMaterial, flagMaterial } = textures;
+    const { materialMap } = textures;
 
     this.soldiers = new Array(grid.data.length).fill(undefined);
 
@@ -172,67 +172,6 @@ export class KJS {
         scene.add(sprite);
         this.soldiers[(row + rearRows) * GRID_WIDTH + column] = sprite;
       }
-    }
-
-    // TODO: All of the following things can be added to the underlying image
-    // and this code can be removed.
-
-    const guardScale = 1;
-    const guardDistance = 1.5;
-    const secondGuardDistance = guardDistance + 0.8;
-    function renderGuard(x: number, y: number) {
-      const sprite = new THREE.Sprite(guardMaterial);
-      sprite.scale.set(guardScale, guardScale, guardScale);
-      sprite.position.set(x, 0, y);
-      scene.add(sprite);
-    }
-
-    // Render rear guards.
-    const rearMaxX = rearOffsetX + rearColumns * columnSpacing;
-    const rearGuardOffsetX: Array<number> = [
-      rearOffsetX - secondGuardDistance,
-      rearOffsetX - guardDistance,
-      rearMaxX + guardDistance,
-      rearMaxX + secondGuardDistance
-    ];
-    for (let row = 0; row < 105; row += 6) {
-      // Skip the range around the steps leading to the building.
-      if (row > 45 && row < 65) {
-        continue;
-      }
-      const y = rearOffsetY + row * rowSpacing;
-      rearGuardOffsetX.forEach(x => {
-        renderGuard(x, y);
-      });
-    }
-
-    // Render front guards.
-    const frontMaxX = frontOffsetX + frontColumns * columnSpacing;
-    const frontGuardOffsetX: Array<number> = [
-      frontOffsetX - secondGuardDistance,
-      frontOffsetX - guardDistance,
-      frontMaxX + guardDistance,
-      frontMaxX + secondGuardDistance
-    ];
-    for (let row = 0; row < 105; row += 3) {
-      // Skip the range around the steps leading to the building.
-      if (row > 25 && row < 33) {
-        continue;
-      }
-      const y = frontOffsetY + row * rowSpacing;
-      frontGuardOffsetX.forEach(x => {
-        renderGuard(x, y);
-      });
-    }
-
-    // Render flag people in the back.
-    const flagScale = 4;
-    const flagOffsetY = rearOffsetY - 3;
-    for (let x = -6; x < rearColumns + 6; x += 6) {
-      const sprite = new THREE.Sprite(flagMaterial);
-      sprite.scale.set(flagScale, flagScale, flagScale);
-      sprite.position.set(rearOffsetX + x * columnSpacing, 0, flagOffsetY);
-      scene.add(sprite);
     }
   }
 

@@ -14,8 +14,6 @@ function loadTexture(url: string): Promise<THREE.Texture> {
 const textureNames = [
   "background2",
   "overlay2",
-  "flag",
-  "guard",
   "soldier-red",
   "soldier-green",
   "soldier-blue",
@@ -29,8 +27,6 @@ const textureNames = [
 export interface KJSTextures {
   background: THREE.Texture;
   overlay: THREE.Texture;
-  flagMaterial: THREE.SpriteMaterial;
-  guardMaterial: THREE.SpriteMaterial;
   materialMap: Map<Color, THREE.SpriteMaterial>;
 }
 
@@ -53,17 +49,15 @@ export function loadTextures(): Promise<KJSTextures> {
     return {
       background: textures[0],
       overlay: textures[1],
-      flagMaterial: newSpriteMaterial(textures[2]),
-      guardMaterial: newSpriteMaterial(textures[3]),
       materialMap: new Map<Color, THREE.SpriteMaterial>([
-        [Color.Red, newSpriteMaterial(textures[4])],
-        [Color.Green, newSpriteMaterial(textures[5])],
-        [Color.Blue, newSpriteMaterial(textures[6])],
-        [Color.Cyan, newSpriteMaterial(textures[7])],
-        [Color.Magenta, newSpriteMaterial(textures[8])],
-        [Color.Yellow, newSpriteMaterial(textures[9])],
-        [Color.Black, newSpriteMaterial(textures[10])],
-        [Color.White, newSpriteMaterial(textures[11])]
+        [Color.Red, newSpriteMaterial(textures[2])],
+        [Color.Green, newSpriteMaterial(textures[3])],
+        [Color.Blue, newSpriteMaterial(textures[4])],
+        [Color.Cyan, newSpriteMaterial(textures[5])],
+        [Color.Magenta, newSpriteMaterial(textures[6])],
+        [Color.Yellow, newSpriteMaterial(textures[7])],
+        [Color.Black, newSpriteMaterial(textures[8])],
+        [Color.White, newSpriteMaterial(textures[9])]
       ])
     };
   });
