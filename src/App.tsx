@@ -34,13 +34,8 @@ export default function App() {
   React.useEffect(() => {
     if (!loaded) return;
     if (canvasRef.current === null || renderRef.current === null) return;
-    let rafId = window.requestAnimationFrame(() => {
-      renderRef.current(value, canvasRef.current);
-    });
-    return () => {
-      window.cancelAnimationFrame(rafId);
-    };
-  }, [loaded, value]);
+    return renderRef.current(value, canvasRef.current);
+  });
 
   return (
     <div className={styles.Container}>
