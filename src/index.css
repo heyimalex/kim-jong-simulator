@@ -17,3 +17,9 @@ h2 {
   font-weight: normal;
   margin-top: 0;
 }
+
+@media only screen and (max-width: 600px) {
+  h1 {
+    font-size: 35px;
+  }
+}
