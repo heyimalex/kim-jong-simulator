@@ -44,8 +44,10 @@ export default function App() {
 
   return (
     <div className={styles.Container}>
-      <h1>김정X 시뮬레이터</h1>
-      <h2>Kim Jong Simulator</h2>
+      <div className={styles.TopContainer}>
+        <h1>김정X 시뮬레이터</h1>
+        <h2>Kim Jong Simulator</h2>
+      </div>
       <textarea className={styles.MainText} value={value} onChange={onChange} />
       <div className={styles.CanvasContainer}>
         <canvas width={1080} height={1080} ref={canvasRef} />
