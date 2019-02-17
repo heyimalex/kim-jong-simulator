@@ -8,8 +8,8 @@ import { PRNG } from "./utils";
 
 // CONFIG ----------------------------
 
-const sceneWidth = 1800;
-const sceneHeight = 1800;
+const sceneWidth = 1080;
+const sceneHeight = 1080;
 const cameraPosition: Coordinate = { x: 0, y: 18.4, z: 100 };
 const lookAtPosition: Coordinate = { x: 0, y: 0, z: -40 };
 
@@ -55,7 +55,6 @@ export class KJS {
       alpha: true
     });
     renderer.setSize(sceneWidth, sceneHeight);
-    renderer.setClearColor(0xdddddd, 1);
 
     const scene = new THREE.Scene();
 
@@ -94,6 +93,7 @@ export class KJS {
       })
     );
     overlayScene.add(overlayMesh);
+
     renderer.autoClear = false;
 
     this.textures = textures;
@@ -147,6 +147,8 @@ export class KJS {
           0,
           rearOffsetY + row * rowSpacing
         );
+        sprite.matrixAutoUpdate = false;
+        sprite.updateMatrix();
         scene.add(sprite);
 
         const x = column + rearColumnOffset;
@@ -169,6 +171,8 @@ export class KJS {
           0,
           frontOffsetY + row * rowSpacing
         );
+        sprite.matrixAutoUpdate = false;
+        sprite.updateMatrix();
         scene.add(sprite);
         this.soldiers[(row + rearRows) * GRID_WIDTH + column] = sprite;
       }

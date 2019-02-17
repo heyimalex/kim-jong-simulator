@@ -48,7 +48,7 @@ export default function App() {
       <h2>Kim Jong Simulator</h2>
       <textarea className={styles.MainText} value={value} onChange={onChange} />
       <div className={styles.CanvasContainer}>
-        <canvas width={1800} height={1800} ref={canvasRef} />
+        <canvas width={1080} height={1080} ref={canvasRef} />
       </div>
       <div className={styles.MadeByAlex}>
         <span>

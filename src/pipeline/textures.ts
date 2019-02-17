@@ -34,8 +34,11 @@ function newSpriteMaterial(t: THREE.Texture): THREE.SpriteMaterial {
   return new THREE.SpriteMaterial({
     map: t,
     color: 0xffffff,
-    transparent: true,
-    fog: true
+    //transparent: true,
+    fog: false,
+    lights: false,
+    depthTest: false,
+    depthWrite: false
   });
 }
 
