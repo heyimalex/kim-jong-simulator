@@ -97,61 +97,76 @@ export default function App() {
         <h1>김정X 시뮬레이터</h1>
         <h2>Kim Jong Simulator</h2>
       </div>
+
       <textarea
         className={styles.MainText}
         value={state.text}
         onChange={onChange}
       />
-      <Toggle rkey="bold" state={state} setState={setState} />
-      <Toggle rkey="italic" state={state} setState={setState} />
-      <Toggle rkey="adaptiveFontSize" state={state} setState={setState} />
-      <Toggle rkey="forceUpperCase" state={state} setState={setState} />
-      <Toggle rkey="forceTrimSpace" state={state} setState={setState} />
-      <Slider
-        rkey="lineHeight"
-        min={0.1}
-        max={2.0}
-        step={0.1}
-        state={state}
-        setState={setState}
-      />
-      <Slider
-        rkey="quantizationPoint"
-        min={1}
-        max={255}
-        step={1}
-        state={state}
-        setState={setState}
-      />
-      <Slider
-        rkey="maxFontSize"
-        min={1}
-        max={150}
-        step={1}
-        state={state}
-        setState={setState}
-      />
-      <Choose
-        rkey="vAlign"
-        state={state}
-        setState={setState}
-        options={["top", "center", "bottom"]}
-      />
-      <Choose
-        rkey="textAlign"
-        state={state}
-        setState={setState}
-        options={["left", "center", "right"]}
-      />
-      <select
-        value={state.fontFamily}
-        onChange={e => {
-          const value = e.target.value;
-          setState(state => ({ ...state, fontFamily: value }));
+      <input
+        type="checkbox"
+        checked={state.showAdvancedTextOptions}
+        onChange={() => {
+          setState(state => ({
+            ...state,
+            showAdvancedTextOptions: !state.showAdvancedTextOptions
+          }));
         }}
-      >
-        {fontStacks}
-      </select>
+      />
+      {state.showAdvancedTextOptions ? (
+        <React.Fragment>
+          <Toggle rkey="bold" state={state} setState={setState} />
+          <Toggle rkey="italic" state={state} setState={setState} />
+          <Toggle rkey="adaptiveFontSize" state={state} setState={setState} />
+          <Toggle rkey="forceUpperCase" state={state} setState={setState} />
+          <Toggle rkey="forceTrimSpace" state={state} setState={setState} />
+          <Slider
+            rkey="lineHeight"
+            min={0.1}
+            max={2.0}
+            step={0.1}
+            state={state}
+            setState={setState}
+          />
+          <Slider
+            rkey="quantizationPoint"
+            min={1}
+            max={255}
+            step={1}
+            state={state}
+            setState={setState}
+          />
+          <Slider
+            rkey="maxFontSize"
+            min={1}
+            max={150}
+            step={1}
+            state={state}
+            setState={setState}
+          />
+          <Choose
+            rkey="vAlign"
+            state={state}
+            setState={setState}
+            options={["top", "center", "bottom"]}
+          />
+          <Choose
+            rkey="textAlign"
+            state={state}
+            setState={setState}
+            options={["left", "center", "right"]}
+          />
+          <select
+            value={state.fontFamily}
+            onChange={e => {
+              const value = e.target.value;
+              setState(state => ({ ...state, fontFamily: value }));
+            }}
+          >
+            {fontStacks}
+          </select>
+        </React.Fragment>
+      ) : null}
       <div className={styles.CanvasContainer}>
         <canvas width={1080} height={1080} ref={canvasRef} />
       </div>
