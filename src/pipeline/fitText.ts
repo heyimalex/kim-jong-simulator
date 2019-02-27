@@ -92,7 +92,7 @@ export function fitText(
   }
 
   // Calculate initial y position depending on vAlign.
-  let y = dy;
+  let y = dy + 5;
   if (vAlign !== "top") {
     const textHeight = lineSizes.reduce((total, size) => {
       return total + size * options.lineHeight;
@@ -109,8 +109,10 @@ export function fitText(
   for (let i = 0; i < lines.length; i++) {
     const linesize = lineSizes[i];
     ctx.font = fontAtSize(linesize);
-    y += linesize * options.lineHeight;
+    const heightDiff = (linesize * options.lineHeight) / 2;
+    y += heightDiff;
     ctx.fillText(lines[i], x, y);
+    y += heightDiff;
   }
 }
 
