@@ -1,16 +1,12 @@
-# TODO
+# Kim Jong Simulator
 
-- Advanced text rendering options
-  - font
-  - bold/italic
-  - line height
-  - text align
-  - vertical align
-  - adaptive font size
-  - max font size
-  - force uppercase
-  - force trim space
-  - quantization point
+I wrote a thing to make a picture.
+
+- [Current version](http://kimjongsim2.s3-website-us-east-1.amazonaws.com/)
+- [Old version](http://kimjongsim.s3-website-us-west-1.amazonaws.com/)
+
+## TODO
+
 - Faster time to first paint
   - Render static
   - Load pipeline code async
