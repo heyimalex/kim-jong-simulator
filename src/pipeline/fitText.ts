@@ -37,6 +37,8 @@ export function fitText(
     return; // nothing to do
   }
 
+  ctx.textBaseline = "middle";
+
   const options: Options = (opts = {
     ...defaultOptions,
     ...opts
