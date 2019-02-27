@@ -22,6 +22,18 @@ export function loadDeps(): Promise<Dependencies> {
 interface RenderArgs {
   text: string;
   target: HTMLCanvasElement;
+
+  fontFamily: string;
+  bold: boolean;
+  italic: boolean;
+  lineHeight: number;
+  textAlign: "left" | "center" | "right";
+  vAlign: "top" | "center" | "bottom";
+  adaptiveFontSize: boolean;
+  maxFontSize: number;
+  forceUpperCase: boolean;
+  forceTrimSpace: boolean;
+  quantizationPoint: number;
 }
 
 export function createRenderer(deps: Dependencies) {
@@ -40,19 +52,41 @@ export function createRenderer(deps: Dependencies) {
   const kjs = new KJS(deps.textures);
 
   const stages = [
-    ({ text }: RenderArgs) => {
+    (args: RenderArgs) => {
       if (textCanvasCtx === null) {
         throw new Error("textCanvas.getContext returned null");
       }
       // RENDER TEXT
-      const lines = text
-        .toUpperCase()
-        .split(/[\r\n]+/)
-        .map(l => l.trim())
-        .filter(l => l !== "");
+
+      let text = args.text;
+      if (args.forceUpperCase) {
+        text = text.toUpperCase();
+      }
+      let lines = text.split(/[\r\n]+/);
+      if (args.forceTrimSpace) {
+        lines = lines.map(l => l.trim()).filter(l => l !== "");
+      }
+
       textCanvasCtx.clearRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
       if (lines.length !== 0) {
-        fitText(textCanvasCtx, 7, 110 + 10, 180 - 14, 110 - 20, lines);
+        const fontAtSize = (size: number) => {
+          return [
+            args.italic ? "italic" : "",
+            args.bold ? "bold" : "",
+            `${size}px`,
+            args.fontFamily
+          ]
+            .filter(p => p !== "")
+            .join(" ");
+        };
+        fitText(textCanvasCtx, 7, 110 + 10, 180 - 14, 110 - 20, lines, {
+          textAlign: args.textAlign,
+          vAlign: args.vAlign,
+          font: fontAtSize,
+          lineHeight: args.lineHeight,
+          adaptiveSize: args.adaptiveFontSize,
+          maxFontSize: args.maxFontSize
+        });
         quantizeTextCanvas(
           textCanvasCtx,
           0,
@@ -60,7 +94,7 @@ export function createRenderer(deps: Dependencies) {
           GRID_WIDTH,
           GRID_HEIGHT,
           [255, 255, 255],
-          255
+          args.quantizationPoint
         );
       }
     },
@@ -96,16 +130,13 @@ export function createRenderer(deps: Dependencies) {
     }
   ];
 
-  function render(text: string, target: HTMLCanvasElement) {
-    console.log("render called with", text, target);
+  function render(args: RenderArgs) {
+    console.log("render called with", args);
 
     let cancelled = false;
     let i = 0;
     let timeoutId: number = 0;
-    const args: RenderArgs = {
-      text,
-      target
-    };
+
     const TIMEOUT = 10;
     function nextStage() {
       if (cancelled) return;
