@@ -7,6 +7,16 @@ import { imgPromise } from "./utils";
 export const GRID_WIDTH = 180;
 export const GRID_HEIGHT = 220;
 
+// These are hard coded, but could just as easily be configurable.
+const BASE_DX = 0;
+const BASE_DY = 110;
+const X_PADDING = 15;
+const Y_PADDING = 15;
+const DX = BASE_DX + X_PADDING;
+const DY = BASE_DY + Y_PADDING;
+const DWIDTH = GRID_WIDTH - X_PADDING * 2 - BASE_DX;
+const DHEIGHT = GRID_HEIGHT - Y_PADDING * 2 - BASE_DY;
+
 type Dependencies = {
   textures: KJSTextures;
   baseImg: HTMLImageElement;
@@ -79,7 +89,7 @@ export function createRenderer(deps: Dependencies) {
             .filter(p => p !== "")
             .join(" ");
         };
-        fitText(textCanvasCtx, 7, 110 + 10, 180 - 14, 110 - 20, lines, {
+        fitText(textCanvasCtx, DX, DY, DWIDTH, DHEIGHT, lines, {
           textAlign: args.textAlign,
           vAlign: args.vAlign,
           font: fontAtSize,
