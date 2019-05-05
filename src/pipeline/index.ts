@@ -162,11 +162,21 @@ export function createRenderer(deps: Dependencies) {
   function render(args: RenderArgs) {
     console.log("render called with", args);
 
+    const STAGE_TIMEOUT = 10;
     let cancelled = false;
     let i = 0;
     let timeoutId: number = 0;
+    const renderStartTime = performance.now();
 
-    const TIMEOUT = 0;
+    function cancel(msg: string) {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+      if (timeoutId !== 0) {
+        console.log(`stopping render pipeline: ${msg}`);
+        timeoutId = 0;
+      }
+    }
+
     function nextStage() {
       if (cancelled) return;
       const [name, stage] = stages[i];
@@ -175,20 +185,29 @@ export function createRenderer(deps: Dependencies) {
       const start = performance.now();
       const cont = stage(args);
       const end = performance.now();
-      console.log(`stage ${i + 1} "${name}" completed in ${end - start}`);
+      const duration = end - start;
+      console.log(
+        `stage ${i + 1} "${name}" completed in ${duration.toFixed(4)}ms`
+      );
       i += 1;
       if (i < stages.length) {
         if (cont === false) {
-          console.log(`stopping render pipeline: ${name} returned false`);
+          cancel(`${name} returned false`);
           return;
         }
-        timeoutId = window.setTimeout(nextStage, TIMEOUT);
+        timeoutId = window.setTimeout(nextStage, STAGE_TIMEOUT);
+      } else {
+        const renderDuration = performance.now() - renderStartTime;
+        console.log(`render took a total of ${renderDuration.toFixed(4)}ms`);
+        timeoutId = 0;
       }
     }
-    timeoutId = window.setTimeout(nextStage, TIMEOUT);
+
+    // Start the pipeline.
+    timeoutId = window.setTimeout(nextStage, STAGE_TIMEOUT);
+
     return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
+      cancel("cancelled");
     };
   }
   return render;
