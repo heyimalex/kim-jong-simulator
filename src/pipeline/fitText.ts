@@ -6,7 +6,7 @@ function makeFontFunc(fontFamily: string): (size: number) => string {
   return (size: number) => `${size}px ${fontFamily}`;
 }
 
-interface Options {
+export interface Options {
   textAlign: "left" | "right" | "center";
   vAlign: "top" | "bottom" | "center";
   font: string | ((size: number) => string);
@@ -15,7 +15,7 @@ interface Options {
   adaptiveSize: boolean;
 }
 
-const defaultOptions: Options = {
+export const defaultOptions: Options = {
   textAlign: "center",
   vAlign: "center",
   font: defaultFontAtSize,
@@ -39,10 +39,10 @@ export function fitText(
 
   ctx.textBaseline = "middle";
 
-  const options: Options = (opts = {
+  const options: Options = {
     ...defaultOptions,
     ...opts
-  });
+  };
 
   // Make sure that fontAtSize is a function that takes in a size and returns
   // a font string.

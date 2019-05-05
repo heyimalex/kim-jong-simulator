@@ -46,6 +46,8 @@ interface RenderArgs {
   quantizationPoint: number;
 }
 
+type Stage = [string, (args: RenderArgs) => boolean | void];
+
 export function createRenderer(deps: Dependencies) {
   const textCanvas = document.createElement("canvas");
   textCanvas.width = GRID_WIDTH;
@@ -61,83 +63,100 @@ export function createRenderer(deps: Dependencies) {
 
   const kjs = new KJS(deps.textures);
 
-  const stages = [
-    (args: RenderArgs) => {
-      if (textCanvasCtx === null) {
-        throw new Error("textCanvas.getContext returned null");
-      }
-      // RENDER TEXT
+  const stages: Stage[] = [
+    [
+      "renderText",
+      (args: RenderArgs) => {
+        if (textCanvasCtx === null) {
+          throw new Error("textCanvas.getContext returned null");
+        }
+        // RENDER TEXT
 
-      let text = args.text;
-      if (args.forceUpperCase) {
-        text = text.toUpperCase();
-      }
-      let lines = text.split(/[\r\n]+/);
-      if (args.forceTrimSpace) {
-        lines = lines.map(l => l.trim()).filter(l => l !== "");
-      }
+        let text = args.text;
+        if (args.forceUpperCase) {
+          text = text.toUpperCase();
+        }
+        let lines = text.split(/[\r\n]+/);
+        if (args.forceTrimSpace) {
+          lines = lines.map(l => l.trim()).filter(l => l !== "");
+        }
 
-      textCanvasCtx.clearRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
-      if (lines.length !== 0) {
-        const fontAtSize = (size: number) => {
-          return [
-            args.italic ? "italic" : "",
-            args.bold ? "bold" : "",
-            `${size}px`,
-            args.fontFamily
-          ]
-            .filter(p => p !== "")
-            .join(" ");
-        };
-        fitText(textCanvasCtx, DX, DY, DWIDTH, DHEIGHT, lines, {
-          textAlign: args.textAlign,
-          vAlign: args.vAlign,
-          font: fontAtSize,
-          lineHeight: args.lineHeight,
-          adaptiveSize: args.adaptiveFontSize,
-          maxFontSize: args.maxFontSize
-        });
-        quantizeTextCanvas(
-          textCanvasCtx,
-          0,
-          0,
-          GRID_WIDTH,
-          GRID_HEIGHT,
-          [255, 255, 255],
-          args.quantizationPoint
+        textCanvasCtx.clearRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
+        if (lines.length !== 0) {
+          const fontAtSize = (size: number) => {
+            return [
+              args.italic ? "italic" : "",
+              args.bold ? "bold" : "",
+              `${size}px`,
+              args.fontFamily
+            ]
+              .filter(p => p !== "")
+              .join(" ");
+          };
+          fitText(textCanvasCtx, DX, DY, DWIDTH, DHEIGHT, lines, {
+            textAlign: args.textAlign,
+            vAlign: args.vAlign,
+            font: fontAtSize,
+            lineHeight: args.lineHeight,
+            adaptiveSize: args.adaptiveFontSize,
+            maxFontSize: args.maxFontSize
+          });
+          quantizeTextCanvas(
+            textCanvasCtx,
+            0,
+            0,
+            GRID_WIDTH,
+            GRID_HEIGHT,
+            [255, 255, 255],
+            args.quantizationPoint
+          );
+        }
+      }
+    ],
+    [
+      "prerenderCanvas",
+      () => {
+        if (preRenderCanvasCtx === null) {
+          throw new Error("preRenderCanvas.getContext returned null");
+        }
+        preRenderCanvasCtx.drawImage(deps.baseImg, 0, 0);
+        preRenderCanvasCtx.drawImage(textCanvas, 0, 0);
+      }
+    ],
+    [
+      "quantize",
+      () => {
+        if (preRenderCanvasCtx === null) {
+          throw new Error("preRenderCanvas.getContext returned null");
+        }
+        quantizeImageDataToGrid(
+          preRenderCanvasCtx.getImageData(0, 0, GRID_WIDTH, GRID_HEIGHT),
+          preRenderGrid
         );
       }
-    },
-    () => {
-      if (preRenderCanvasCtx === null) {
-        throw new Error("preRenderCanvas.getContext returned null");
+    ],
+    [
+      "updateScene",
+      () => {
+        return kjs.updateScene(preRenderGrid);
       }
-      preRenderCanvasCtx.drawImage(deps.baseImg, 0, 0);
-      preRenderCanvasCtx.drawImage(textCanvas, 0, 0);
-    },
-    () => {
-      if (preRenderCanvasCtx === null) {
-        throw new Error("preRenderCanvas.getContext returned null");
+    ],
+    [
+      "renderScene",
+      ({ target }: RenderArgs) => {
+        kjs.renderScene();
       }
-      quantizeImageDataToGrid(
-        preRenderCanvasCtx.getImageData(0, 0, GRID_WIDTH, GRID_HEIGHT),
-        preRenderGrid
-      );
-    },
-    () => {
-      kjs.updateScene(preRenderGrid);
-    },
-    ({ target }: RenderArgs) => {
-      kjs.renderScene();
-
-      const targetCtx = target.getContext("2d");
-      if (targetCtx === null) {
-        throw new Error("targetCanvas.getContext returned null");
+    ],
+    [
+      "draw",
+      ({ target }) => {
+        const targetCtx = target.getContext("2d");
+        if (targetCtx === null) {
+          throw new Error("targetCanvas.getContext returned null");
+        }
+        targetCtx.drawImage(kjs.renderer.domElement, 0, 0);
       }
-
-      // DRAW THE OUTPUT IMAGE
-      targetCtx.drawImage(kjs.renderer.domElement, 0, 0);
-    }
+    ]
   ];
 
   function render(args: RenderArgs) {
@@ -147,18 +166,22 @@ export function createRenderer(deps: Dependencies) {
     let i = 0;
     let timeoutId: number = 0;
 
-    const TIMEOUT = 10;
+    const TIMEOUT = 0;
     function nextStage() {
       if (cancelled) return;
-      const stage = stages[i];
+      const [name, stage] = stages[i];
       if (stage === undefined) return;
 
       const start = performance.now();
-      stage(args);
+      const cont = stage(args);
       const end = performance.now();
-      console.log(`stage ${i + 1} completed in ${end - start}`);
+      console.log(`stage ${i + 1} "${name}" completed in ${end - start}`);
       i += 1;
       if (i < stages.length) {
+        if (cont === false) {
+          console.log(`stopping render pipeline: ${name} returned false`);
+          return;
+        }
         timeoutId = window.setTimeout(nextStage, TIMEOUT);
       }
     }

@@ -23,3 +23,9 @@ h2 {
     font-size: 35px;
   }
 }
+
+select {
+  padding: 5px 10px;
+  border: 15px solid #ffe100;
+  width: 100%;
+}

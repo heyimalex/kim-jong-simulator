@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import * as React from "react";
 
 import { loadTextures, KJSTextures } from "./textures";
 import { Grid } from "./Grid";
@@ -165,13 +164,13 @@ export class KJS {
         }
         const sprite = new THREE.Sprite(materialMap.get(color));
         const jitter = row === frontRows - 1 ? 0 : randomJitter();
+        sprite.matrixAutoUpdate = false;
         sprite.scale.set(soldierScale, soldierScale + jitter, soldierScale);
         sprite.position.set(
           frontOffsetX + column * columnSpacing,
           0,
           frontOffsetY + row * rowSpacing
         );
-        sprite.matrixAutoUpdate = false;
         sprite.updateMatrix();
         scene.add(sprite);
         this.soldiers[(row + rearRows) * GRID_WIDTH + column] = sprite;
@@ -179,7 +178,7 @@ export class KJS {
     }
   }
 
-  updateScene(nextGrid: Grid) {
+  updateScene(nextGrid: Grid): boolean {
     const { grid, soldiers } = this;
     const { materialMap } = this.textures;
     if (process.env.NODE_ENV === "development") {
@@ -193,14 +192,17 @@ export class KJS {
     // Walk the two grids, comparing values. If either value has changed,
     // update the corresponding sprite material. Could avoid a lot of
     // iterations here if we didn't go over the missing rear soldiers.
+    let updates = 0;
     for (let i = 0; i < grid.data.length; i++) {
       if (grid.data[i] === nextGrid.data[i]) continue;
       const nextColor = nextGrid.data[i];
       grid.data[i] = nextColor;
       const sprite = soldiers[i];
       if (sprite !== undefined) {
+        updates += 1;
         sprite.material = materialMap.get(nextColor || Color.Red)!;
       }
     }
+    return updates > 0;
   }
 }

@@ -33,7 +33,7 @@ export default function App() {
   const [state, setState] = React.useState<State>({
     text: "SEND\nNUDES",
 
-    showAdvancedTextOptions: false,
+    showAdvancedTextOptions: true,
 
     dependenciesHaveLoaded: false,
 
@@ -115,6 +115,7 @@ export default function App() {
       />
       {state.showAdvancedTextOptions ? (
         <React.Fragment>
+          <hr />
           <Toggle rkey="bold" state={state} setState={setState} />
           <Toggle rkey="italic" state={state} setState={setState} />
           <Toggle rkey="adaptiveFontSize" state={state} setState={setState} />
@@ -202,7 +203,10 @@ function Toggle<K extends keyof State>(props: {
   setState: React.Dispatch<React.SetStateAction<State>>;
 }) {
   return (
-    <div
+    <button
+      className={
+        props.state[props.rkey] ? styles.Toggle__Selected : styles.Toggle
+      }
       onClick={() => {
         props.setState(state => ({
           ...state,
@@ -210,8 +214,8 @@ function Toggle<K extends keyof State>(props: {
         }));
       }}
     >
-      Toggle {props.rkey}
-    </div>
+      {props.rkey.toUpperCase()}
+    </button>
   );
 }
 

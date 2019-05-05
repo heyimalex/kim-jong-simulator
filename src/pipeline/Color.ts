@@ -1,6 +1,6 @@
 import * as colorspace from "./colorspace";
 
-// This is our "palette" for drawing the soldier spires.
+// This is our "palette" for drawing the soldier sprites.
 export enum Color {
   Invalid,
   Red,
@@ -42,35 +42,6 @@ const definitions: ColorDefinition[] = ([
   };
 });
 
-/*export const colorList: Color[] = [
-  Color.Red,
-  Color.Green,
-  Color.Blue,
-  Color.Cyan,
-  Color.Magenta,
-  Color.Yellow,
-  Color.Black,
-  Color.White
-];*/
-
-/*export function getColorName(c: Color): string {
-  const name = Color[c];
-  return name === undefined ? "invalid" : name.toLowerCase();
-}*/
-
-/*const valueMap = new Map<Color, string>(
-  definitions.map(
-    (def): [Color, string] => {
-      return [def.color, def.hex];
-    }
-  )
-);
-
-export function getColorValue(c: Color): string {
-  const value = valueMap.get(c);
-  return value === undefined ? "#959595" : value;
-}
-*/
 // Converts an rgb triple into a hex color value:
 //   rgb2hex([255,0,0]) = '#FF0000'
 function rgb2hex(rgb: [number, number, number]): string {
