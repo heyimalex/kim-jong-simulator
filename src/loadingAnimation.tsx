@@ -1,12 +1,10 @@
-import * as React from "react";
-
-const CANVAS_WIDTH = 1800;
-const CANVAS_HEIGHT = 1800;
+const CANVAS_WIDTH = 1080;
+const CANVAS_HEIGHT = 1080;
 const CHARS = Array.from("북한은 최고의 한국이다");
 const CHAR_DELAY = 500;
-const FONT_SIZE = 50;
-const CHAR_WIDTH = 80;
-const SPACE_WIDTH = 80;
+const FONT_SIZE = 30;
+const CHAR_WIDTH = 60;
+const SPACE_WIDTH = 60;
 const FULL_WIDTH = SPACE_WIDTH * 2 + CHAR_WIDTH * 10;
 const START_DY = Math.floor((CANVAS_HEIGHT - CHAR_WIDTH) / 2);
 const START_DX = Math.floor((CANVAS_WIDTH - FULL_WIDTH) / 2);
@@ -17,14 +15,12 @@ export function loadingAnimation(ctx: CanvasRenderingContext2D) {
     ctx.font = `bold ${FONT_SIZE}px sans-serif`;
     ctx.textAlign = "center";
     let initialTime = 0;
-    let lastPaint = 0;
     let rafId = 0;
     const draw = (ts: number) => {
         if (initialTime === 0) {
             initialTime = ts;
         }
 
-        //ctx.fillStyle = "blue";
         ctx.clearRect(START_DX, START_DY, FULL_WIDTH, CHAR_WIDTH + 100);
 
         // Get the currently highlighted index via relative time. There are 10
@@ -61,7 +57,6 @@ export function loadingAnimation(ctx: CanvasRenderingContext2D) {
             charIndex += 1;
             dx += CHAR_WIDTH;
         });
-        lastPaint = ts;
         rafId = window.requestAnimationFrame(draw);
     };
     rafId = window.requestAnimationFrame(draw);

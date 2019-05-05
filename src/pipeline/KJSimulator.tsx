@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { loadTextures, KJSTextures } from "./textures";
+import { KJSTextures } from "./textures";
 import { Grid } from "./Grid";
 import { Color } from "./Color";
 import { PRNG } from "./utils";
@@ -150,7 +150,6 @@ export class KJS {
         sprite.updateMatrix();
         scene.add(sprite);
 
-        const x = column + rearColumnOffset;
         this.soldiers[row * GRID_WIDTH + column + rearColumnOffset] = sprite;
       }
     }

@@ -1,5 +1,3 @@
-import * as colorspace from "./colorspace";
-
 const defaultFontAtSize = (size: number) => `bold ${size}px sans-serif`;
 
 function makeFontFunc(fontFamily: string): (size: number) => string {
