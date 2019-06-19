@@ -61,8 +61,8 @@ function LoadingHarness() {
   return (
     <canvas
       style={{ border: "5px solid red", width: 700, height: 700 }}
-      width="1800"
-      height="1800"
+      width={1080}
+      height={1080}
       ref={canvasRef}
     />
   );
