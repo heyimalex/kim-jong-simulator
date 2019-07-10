@@ -51,9 +51,10 @@ export class KJS {
 
   constructor(textures: KJSTextures) {
     const renderer = new THREE.WebGLRenderer({
-      alpha: true
+      premultipliedAlpha: false
     });
     renderer.setSize(sceneWidth, sceneHeight);
+    renderer.setPixelRatio(1);
 
     const scene = new THREE.Scene();
 
@@ -142,7 +143,7 @@ export class KJS {
           soldierScale
         );
         sprite.position.set(
-          rearOffsetX + column * columnSpacing,
+          rearOffsetX + column * columnSpacing + randomJitter() / 2,
           0,
           rearOffsetY + row * rowSpacing
         );
@@ -166,7 +167,7 @@ export class KJS {
         sprite.matrixAutoUpdate = false;
         sprite.scale.set(soldierScale, soldierScale + jitter, soldierScale);
         sprite.position.set(
-          frontOffsetX + column * columnSpacing,
+          frontOffsetX + column * columnSpacing + randomJitter() / 6,
           0,
           frontOffsetY + row * rowSpacing
         );

@@ -8,24 +8,18 @@ body {
 
 h1 {
   color: #ffe100;
-  font-size: 60px;
+  font-size: 3rem;
   margin-bottom: 0px;
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 1.5rem;
   font-weight: normal;
   margin-top: 0;
 }
 
 @media only screen and (max-width: 600px) {
   h1 {
-    font-size: 35px;
+    font-size: 2rem;
   }
-}
-
-select {
-  padding: 5px 10px;
-  border: 15px solid #ffe100;
-  width: 100%;
 }

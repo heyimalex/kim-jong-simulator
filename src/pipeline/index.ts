@@ -1,4 +1,8 @@
-import { fitText, quantizeTextCanvas } from "./fitText";
+import {
+  fitText,
+  quantizeTextCanvas,
+  Options as FitTextOptions
+} from "./fitText";
 import { Grid, quantizeImageDataToGrid } from "./Grid";
 import { KJS } from "./KJSimulator";
 import { loadTextures, KJSTextures } from "./textures";
@@ -10,8 +14,8 @@ export const GRID_HEIGHT = 220;
 // These are hard coded, but could just as easily be configurable.
 const BASE_DX = 0;
 const BASE_DY = 110;
-const X_PADDING = 15;
-const Y_PADDING = 15;
+const X_PADDING = 10;
+const Y_PADDING = 10;
 const DX = BASE_DX + X_PADDING;
 const DY = BASE_DY + Y_PADDING;
 const DWIDTH = GRID_WIDTH - X_PADDING * 2 - BASE_DX;
@@ -29,22 +33,18 @@ export function loadDeps(): Promise<Dependencies> {
   ]).then(([textures, baseImg]) => ({ textures, baseImg }));
 }
 
-interface RenderArgs {
+export type RenderArgs = Exclude<FitTextOptions, "font"> & {
   text: string;
   target: HTMLCanvasElement;
 
   fontFamily: string;
   bold: boolean;
   italic: boolean;
-  lineHeight: number;
-  textAlign: "left" | "center" | "right";
-  vAlign: "top" | "center" | "bottom";
-  adaptiveFontSize: boolean;
-  maxFontSize: number;
+
   forceUpperCase: boolean;
   forceTrimSpace: boolean;
   quantizationPoint: number;
-}
+};
 
 type Stage = [string, (args: RenderArgs) => boolean | void];
 
@@ -98,7 +98,7 @@ export function createRenderer(deps: Dependencies) {
             vAlign: args.vAlign,
             font: fontAtSize,
             lineHeight: args.lineHeight,
-            adaptiveSize: args.adaptiveFontSize,
+            adaptiveFontSize: args.adaptiveFontSize,
             maxFontSize: args.maxFontSize
           });
           quantizeTextCanvas(
@@ -204,7 +204,8 @@ export function createRenderer(deps: Dependencies) {
     }
 
     // Start the pipeline.
-    timeoutId = window.setTimeout(nextStage, STAGE_TIMEOUT);
+    const startTimeout = 200;
+    timeoutId = window.setTimeout(nextStage, startTimeout);
 
     return () => {
       cancel("cancelled");

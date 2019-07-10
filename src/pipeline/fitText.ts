@@ -10,7 +10,7 @@ export interface Options {
   font: string | ((size: number) => string);
   maxFontSize: number;
   lineHeight: number;
-  adaptiveSize: boolean;
+  adaptiveFontSize: boolean;
 }
 
 export const defaultOptions: Options = {
@@ -18,7 +18,7 @@ export const defaultOptions: Options = {
   vAlign: "center",
   font: defaultFontAtSize,
   lineHeight: 0.8,
-  adaptiveSize: true,
+  adaptiveFontSize: true,
   maxFontSize: 300
 };
 
@@ -56,7 +56,7 @@ export function fitText(
   );
 
   let lineSizes: number[] = [];
-  if (options.adaptiveSize) {
+  if (options.adaptiveFontSize) {
     lineSizes = adaptiveFontSizes(maxLineSizes, dHeight, options.lineHeight);
   } else {
     // If adaptive line sizing is disabled, the size is just set to the

@@ -32,13 +32,7 @@ export interface KJSTextures {
 
 function newSpriteMaterial(t: THREE.Texture): THREE.SpriteMaterial {
   return new THREE.SpriteMaterial({
-    map: t,
-    color: 0xffffff,
-    //transparent: true,
-    fog: false,
-    lights: false,
-    depthTest: false,
-    depthWrite: false
+    map: t
   });
 }
 
@@ -49,7 +43,7 @@ export function loadTextures(): Promise<KJSTextures> {
       return loadTexture(url);
     })
   ).then(textures => {
-    return {
+    let kjt = {
       background: textures[0],
       overlay: textures[1],
       materialMap: new Map<Color, THREE.SpriteMaterial>([
@@ -63,5 +57,6 @@ export function loadTextures(): Promise<KJSTextures> {
         [Color.White, newSpriteMaterial(textures[9])]
       ])
     };
+    return kjt;
   });
 }

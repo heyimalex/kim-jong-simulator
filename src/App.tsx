@@ -4,6 +4,7 @@ import styles from "./App.module.css";
 import { loadingAnimation } from "./loadingAnimation";
 
 import { loadDeps, createRenderer } from "./pipeline";
+//import { Options } from "./pipeline/fitText";
 
 interface State {
   text: string;
@@ -12,7 +13,6 @@ interface State {
 
   dependenciesHaveLoaded: boolean;
 
-  // text options
   fontFamily: string;
   bold: boolean;
   italic: boolean;
@@ -26,14 +26,18 @@ interface State {
   quantizationPoint: number;
 }
 
+const initialTextOptions = ["SEND\nNUDES", "DUMMY\nTHICC"];
+const randomInitialText = () =>
+  initialTextOptions[Math.floor(Math.random() * initialTextOptions.length)];
+
 export default function App() {
   const canvasRef = React.useRef<null | HTMLCanvasElement>(null);
   const renderRef = React.useRef<any>(null);
 
   const [state, setState] = React.useState<State>({
-    text: "SEND\nNUDES",
+    text: randomInitialText(),
 
-    showAdvancedTextOptions: true,
+    showAdvancedTextOptions: false,
 
     dependenciesHaveLoaded: false,
 
@@ -41,13 +45,13 @@ export default function App() {
     fontFamily: "sans-serif",
     bold: true,
     italic: false,
-    lineHeight: 0.8,
+    lineHeight: 0.9,
     textAlign: "center",
     vAlign: "center",
     adaptiveFontSize: true,
     maxFontSize: 150,
-    forceUpperCase: true,
-    forceTrimSpace: true,
+    forceUpperCase: false,
+    forceTrimSpace: false,
     quantizationPoint: 1
   });
 
@@ -103,70 +107,8 @@ export default function App() {
         value={state.text}
         onChange={onChange}
       />
-      <input
-        type="checkbox"
-        checked={state.showAdvancedTextOptions}
-        onChange={() => {
-          setState(state => ({
-            ...state,
-            showAdvancedTextOptions: !state.showAdvancedTextOptions
-          }));
-        }}
-      />
       {state.showAdvancedTextOptions ? (
-        <React.Fragment>
-          <hr />
-          <Toggle rkey="bold" state={state} setState={setState} />
-          <Toggle rkey="italic" state={state} setState={setState} />
-          <Toggle rkey="adaptiveFontSize" state={state} setState={setState} />
-          <Toggle rkey="forceUpperCase" state={state} setState={setState} />
-          <Toggle rkey="forceTrimSpace" state={state} setState={setState} />
-          <Slider
-            rkey="lineHeight"
-            min={0.1}
-            max={2.0}
-            step={0.1}
-            state={state}
-            setState={setState}
-          />
-          <Slider
-            rkey="quantizationPoint"
-            min={1}
-            max={255}
-            step={1}
-            state={state}
-            setState={setState}
-          />
-          <Slider
-            rkey="maxFontSize"
-            min={1}
-            max={150}
-            step={1}
-            state={state}
-            setState={setState}
-          />
-          <Choose
-            rkey="vAlign"
-            state={state}
-            setState={setState}
-            options={["top", "center", "bottom"]}
-          />
-          <Choose
-            rkey="textAlign"
-            state={state}
-            setState={setState}
-            options={["left", "center", "right"]}
-          />
-          <select
-            value={state.fontFamily}
-            onChange={e => {
-              const value = e.target.value;
-              setState(state => ({ ...state, fontFamily: value }));
-            }}
-          >
-            {fontStacks}
-          </select>
-        </React.Fragment>
+        <AdvancedOptions state={state} setState={setState} />
       ) : null}
       <div className={styles.CanvasContainer}>
         <canvas width={1080} height={1080} ref={canvasRef} />
@@ -177,6 +119,69 @@ export default function App() {
         </span>
       </div>
     </div>
+  );
+}
+
+function AdvancedOptions(props: {
+  state: State;
+  setState: React.Dispatch<React.SetStateAction<State>>;
+}) {
+  const { state, setState } = props;
+  return (
+    <ul>
+      <Toggle rkey="bold" state={state} setState={setState} />
+      <Toggle rkey="italic" state={state} setState={setState} />
+      <Toggle rkey="adaptiveFontSize" state={state} setState={setState} />
+      <Toggle rkey="forceUpperCase" state={state} setState={setState} />
+      <Toggle rkey="forceTrimSpace" state={state} setState={setState} />
+      <Slider
+        rkey="lineHeight"
+        min={0.1}
+        max={2.0}
+        step={0.1}
+        state={state}
+        setState={setState}
+      />
+      <Slider
+        rkey="quantizationPoint"
+        min={1}
+        max={255}
+        step={1}
+        state={state}
+        setState={setState}
+      />
+      <Slider
+        rkey="maxFontSize"
+        min={1}
+        max={150}
+        step={1}
+        state={state}
+        setState={setState}
+      />
+      <Choose
+        rkey="vAlign"
+        state={state}
+        setState={setState}
+        options={["top", "center", "bottom"]}
+      />
+      <Choose
+        rkey="textAlign"
+        state={state}
+        setState={setState}
+        options={["left", "center", "right"]}
+      />
+      <li>
+        <select
+          value={state.fontFamily}
+          onChange={e => {
+            const value = e.target.value;
+            setState(state => ({ ...state, fontFamily: value }));
+          }}
+        >
+          {fontStacks}
+        </select>
+      </li>
+    </ul>
   );
 }
 
@@ -202,20 +207,21 @@ function Toggle<K extends keyof State>(props: {
   state: State;
   setState: React.Dispatch<React.SetStateAction<State>>;
 }) {
+  const { rkey } = props;
+  const isSelected = props.state[rkey];
   return (
-    <button
-      className={
-        props.state[props.rkey] ? styles.Toggle__Selected : styles.Toggle
-      }
-      onClick={() => {
-        props.setState(state => ({
-          ...state,
-          [props.rkey]: !state[props.rkey]
-        }));
-      }}
-    >
-      {props.rkey.toUpperCase()}
-    </button>
+    <li>
+      <button
+        onClick={() => {
+          props.setState(state => ({
+            ...state,
+            [rkey]: !state[rkey]
+          }));
+        }}
+      >
+        {isSelected ? <strong>*{rkey}</strong> : rkey}
+      </button>
+    </li>
   );
 }
 
@@ -228,7 +234,7 @@ function Slider<K extends keyof State>(props: {
   setState: React.Dispatch<React.SetStateAction<State>>;
 }) {
   return (
-    <div>
+    <li>
       {props.rkey}:
       <input
         type="range"
@@ -245,7 +251,7 @@ function Slider<K extends keyof State>(props: {
         }}
       />
       {props.state[props.rkey]}
-    </div>
+    </li>
   );
 }
 
@@ -256,17 +262,21 @@ function Choose<K extends keyof State>(props: {
   options: string[];
 }) {
   return (
-    <div>
+    <li>
       {props.rkey}:{" "}
-      {props.options.map(opt => {
-        const onClick = () => {
-          props.setState(state => ({ ...state, [props.rkey]: opt }));
-        };
-        if (opt === props.state[props.rkey]) {
-          return <strong onClick={onClick}>{opt}</strong>;
-        }
-        return <span onClick={onClick}>{opt}</span>;
-      })}
-    </div>
+      <ul>
+        {props.options.map(opt => {
+          const onClick = () => {
+            props.setState(state => ({ ...state, [props.rkey]: opt }));
+          };
+          const isSelected = opt === props.state[props.rkey];
+          return (
+            <li key={opt} onClick={onClick}>
+              {isSelected ? <strong>* {opt}</strong> : opt}
+            </li>
+          );
+        })}
+      </ul>
+    </li>
   );
 }
